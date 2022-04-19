@@ -180,9 +180,11 @@ class Piece {
       }
     }
     let piece= boardData.getPiece(row, col);
-    let possibleMoves = piece.getPossibleMoves();
-    for (let possibleMove of possibleMoves){
-      tbl.rows[possibleMove[0]].cells[possibleMove[1]].classList.add('path_square');
+    if(piece!=undefined){
+      let possibleMoves = piece.getPossibleMoves();
+      for (let possibleMove of possibleMoves){
+        tbl.rows[possibleMove[0]].cells[possibleMove[1]].classList.add('path_square');
+      }
     }
     selectedCell = event.currentTarget;
     selectedCell.classList.add('selected_square');
