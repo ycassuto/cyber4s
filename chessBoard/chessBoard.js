@@ -11,7 +11,6 @@ const KNIGHT ='knight';
 const QUEEN = 'queen';
 
 let tbl;
-let pieces = [];
 let boardData ;
 let selectedCell;
 window.addEventListener('load', createChessBoard);
@@ -176,13 +175,14 @@ class Piece {
   function onCellClick(event, row, col){
     for (let i = 0; i < BOARD_SIZE; i++) {
       for (let j = 0; j < BOARD_SIZE; j++) {
+        tbl.rows[i].cells[j].classList.remove('path_square');
         tbl.rows[i].cells[j].classList.remove('selected_square');
       }
     }
     let piece= boardData.getPiece(row, col);
     let possibleMoves = piece.getPossibleMoves();
     for (let possibleMove of possibleMoves){
-      tbl.rows[possibleMove[0]].cells[possibleMove[1]].classList.add('selected_square');
+      tbl.rows[possibleMove[0]].cells[possibleMove[1]].classList.add('path_square');
     }
     selectedCell = event.currentTarget;
     selectedCell.classList.add('selected_square');

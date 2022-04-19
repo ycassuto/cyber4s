@@ -22,3 +22,6 @@ table {
 .selected_square {
     background-color: rgb(50, 206, 167);
 }
+.path_square {
+    background-color: rgb(52, 124, 52);
+}
