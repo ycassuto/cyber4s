@@ -39,6 +39,15 @@ class BoardData {
   addPieceImage(piece){
     addImage(tbl.rows[piece.row].cells[piece.col], piece.player, piece.type);
   }
+//cleans the table from selected squares
+  clearTable(){
+    for (let i = 0; i < BOARD_SIZE; i++) {
+      for (let j = 0; j < BOARD_SIZE; j++) {
+        tbl.rows[i].cells[j].classList.remove("path_square");
+        tbl.rows[i].cells[j].classList.remove("selected_square");
+      }
+    }
+  }
 }
 
 class Piece {
@@ -228,6 +237,8 @@ function onCellClick(event, row, col) {
   if (firstCellClick === undefined) {
     if(cell.getElementsByTagName('img').length > 0){
       firstCellClick = cell;
+    } else {
+      return;
     }
   }
   //check if the second click is a cell without a piece
@@ -239,16 +250,9 @@ function onCellClick(event, row, col) {
     secondCellClick = undefined;
   }
 
-  //cleans the table from selected squares
-  for (let i = 0; i < BOARD_SIZE; i++) {
-    for (let j = 0; j < BOARD_SIZE; j++) {
-      tbl.rows[i].cells[j].classList.remove("path_square");
-      tbl.rows[i].cells[j].classList.remove("selected_square");
-    }
-  }
   let piece = boardData.getPiece(parseInt(firstCellClick.id[3]), parseInt(firstCellClick.id[5]));
   if (piece != undefined) {
-    onfullCellClick(piece, row, col);
+    onPieceCellClick(piece, row, col);
     selectedCell = event.currentTarget;
     selectedCell.classList.add("selected_square");
   } else {
@@ -256,10 +260,11 @@ function onCellClick(event, row, col) {
   }
   if(firstCellClick!=undefined && secondCellClick !=undefined){
     boardData.movePiece(piece, firstCellClick, secondCellClick);
+    boardData.clearTable();
   }
 }
 
-function onfullCellClick(piece, row, col) {
+function onPieceCellClick(piece, row, col) {
   let possibleMoves = piece.getPossibleMoves();
   for (let possibleMove of possibleMoves) {
     tbl.rows[possibleMove[0]].cells[possibleMove[1]].classList.add("path_square");
@@ -269,4 +274,5 @@ function onfullCellClick(piece, row, col) {
 function onEmptyCellClick(){
 
 }
+
 
