@@ -28,6 +28,7 @@ class BoardData {
       }
     }
   }
+
   movePiece(piece, curruntCell, transferCell ){
     let parent = document.getElementById(curruntCell.id);
     parent.removeChild(parent.childNodes[0]);
@@ -94,24 +95,16 @@ class Piece {
 
     let absoluteMoves = [];
     for (let relativeMove of relativeMoves) {
-      absoluteMoves.push([
-        relativeMove[0] + this.row,
-        relativeMove[1] + this.col,
-      ]);
+      absoluteMoves.push([relativeMove[0] + this.row, relativeMove[1] + this.col,]);
     }
 
     let filterMoves = [];
     for (let absoluteMove of absoluteMoves) {
-      if (
-        absoluteMove[0] >= 0 &&
-        absoluteMove[0] <= 7 &&
-        absoluteMove[1] >= 0 &&
-        absoluteMove[1] <= 7
-      ) {
+      if (absoluteMove[0] >= 0 &&absoluteMove[0] <= 7 &&absoluteMove[1] >= 0 &&absoluteMove[1] <= 7) {
         filterMoves.push(absoluteMove);
       }
-    }
-    return filterMoves;
+    } 
+    return this.removeUnavailableSquares(filterMoves);
   }
 
   getPawnMoves() {
@@ -184,6 +177,16 @@ class Piece {
     }
     return result;
   }
+
+  removeUnavailableSquares(moves){
+    let result = [];
+    for(let move of moves){
+      if(!(tbl.rows[move[0]].cells[move[1]].getElementsByTagName('img').length > 0)){
+        result.push(move);
+      }
+    }
+    return result;
+  }
 }
 
 function createChessBoard() {
@@ -245,6 +248,8 @@ function onCellClick(event, row, col) {
   if (secondCellClick === undefined) {
     if(!(cell.getElementsByTagName('img').length > 0)){
       secondCellClick = cell;
+    }else {
+      return;
     }
   } else {
     secondCellClick = undefined;
