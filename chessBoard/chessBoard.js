@@ -29,19 +29,19 @@ class BoardData {
     }
   }
 
-  movePiece(piece, curruntCell, transferCell ){
+  movePiece(piece, curruntCell, transferCell) {
     let parent = document.getElementById(curruntCell.id);
     parent.removeChild(parent.childNodes[0]);
-    piece.setRow((parseInt(transferCell.id[3])));
+    piece.setRow(parseInt(transferCell.id[3]));
     piece.setCol(parseInt(transferCell.id[5]));
     this.addPieceImage(piece);
   }
 
-  addPieceImage(piece){
+  addPieceImage(piece) {
     addImage(tbl.rows[piece.row].cells[piece.col], piece.player, piece.type);
   }
-//cleans the table from selected squares
-  clearTable(){
+  //cleans the table from selected squares
+  clearTable() {
     for (let i = 0; i < BOARD_SIZE; i++) {
       for (let j = 0; j < BOARD_SIZE; j++) {
         tbl.rows[i].cells[j].classList.remove("path_square");
@@ -58,7 +58,7 @@ class Piece {
     this.type = type;
     this.player = player;
   }
-  
+
   setRow(r) {
     this.row = r;
   }
@@ -95,15 +95,23 @@ class Piece {
 
     let absoluteMoves = [];
     for (let relativeMove of relativeMoves) {
-      absoluteMoves.push([relativeMove[0] + this.row, relativeMove[1] + this.col,]);
+      absoluteMoves.push([
+        relativeMove[0] + this.row,
+        relativeMove[1] + this.col,
+      ]);
     }
 
     let filterMoves = [];
     for (let absoluteMove of absoluteMoves) {
-      if (absoluteMove[0] >= 0 &&absoluteMove[0] <= 7 &&absoluteMove[1] >= 0 &&absoluteMove[1] <= 7) {
+      if (
+        absoluteMove[0] >= 0 &&
+        absoluteMove[0] <= 7 &&
+        absoluteMove[1] >= 0 &&
+        absoluteMove[1] <= 7
+      ) {
         filterMoves.push(absoluteMove);
       }
-    } 
+    }
     return this.removeUnavailableSquares(filterMoves);
   }
 
@@ -127,44 +135,17 @@ class Piece {
   }
 
   getKingMoves() {
-    return [
-      [0, 1],
-      [1, 0],
-      [0, -1],
-      [-1, 0],
-      [1, 1],
-      [1, -1],
-      [-1, 1],
-      [-1, -1],
-    ];
+    return [[0, 1],[1, 0],[0, -1],[-1, 0],[1, 1],[1, -1],[-1, 1],[-1, -1],];
   }
 
   getQueenMoves() {
-    let result = [];
-    for (let i = 1; i < BOARD_SIZE; i++) {
-      result.push([i, 0]);
-      result.push([-i, 0]);
-      result.push([0, i]);
-      result.push([0, -i]);
-      result.push([-i, i]);
-      result.push([i, -i]);
-      result.push([-i, -i]);
-      result.push([i, i]);
-    }
+    let result;
+    result = this.getBishopMoves().concat(this.getRookMoves());
     return result;
   }
 
   getKnightMoves() {
-    return [
-      [-2, -1],
-      [-2, 1],
-      [-1, 2],
-      [1, 2],
-      [2, 1],
-      [2, -1],
-      [1, -2],
-      [-1, -2],
-    ];
+    return [[-2, -1],[-2, 1],[-1, 2],[1, 2],[2, 1],[2, -1],[1, -2],[-1, -2]];
   }
 
   getBishopMoves() {
@@ -178,10 +159,10 @@ class Piece {
     return result;
   }
 
-  removeUnavailableSquares(moves){
+  removeUnavailableSquares(moves) {
     let result = [];
-    for(let move of moves){
-      if(!(tbl.rows[move[0]].cells[move[1]].getElementsByTagName('img').length > 0)){
+    for (let move of moves) {
+      if (!(tbl.rows[move[0]].cells[move[1]].getElementsByTagName("img").length >0)) {
         result.push(move);
       }
     }
@@ -230,15 +211,15 @@ function getInitialBoard() {
 }
 
 function onCellClick(event, row, col) {
-  let cell = tbl.rows[row].cells[col] ;
+  let cell = tbl.rows[row].cells[col];
   //clears the variables if both with cells
-  if(firstCellClick!=undefined && secondCellClick !=undefined){
+  if (firstCellClick != undefined && secondCellClick != undefined) {
     firstCellClick = undefined;
     secondCellClick = null;
   }
   //check if the first click is a cell with a piece
   if (firstCellClick === undefined) {
-    if(cell.getElementsByTagName('img').length > 0){
+    if (cell.getElementsByTagName("img").length > 0) {
       firstCellClick = cell;
     } else {
       return;
@@ -246,16 +227,19 @@ function onCellClick(event, row, col) {
   }
   //check if the second click is a cell without a piece
   if (secondCellClick === undefined) {
-    if(!(cell.getElementsByTagName('img').length > 0)){
+    if (!(cell.getElementsByTagName("img").length > 0)) {
       secondCellClick = cell;
-    }else {
+    } else {
       return;
     }
   } else {
     secondCellClick = undefined;
   }
 
-  let piece = boardData.getPiece(parseInt(firstCellClick.id[3]), parseInt(firstCellClick.id[5]));
+  let piece = boardData.getPiece(
+    parseInt(firstCellClick.id[3]),
+    parseInt(firstCellClick.id[5])
+  );
   if (piece != undefined) {
     onPieceCellClick(piece, row, col);
     selectedCell = event.currentTarget;
@@ -263,7 +247,7 @@ function onCellClick(event, row, col) {
   } else {
     onEmptyCellClick();
   }
-  if(firstCellClick!=undefined && secondCellClick !=undefined){
+  if (firstCellClick != undefined && secondCellClick != undefined) {
     boardData.movePiece(piece, firstCellClick, secondCellClick);
     boardData.clearTable();
   }
@@ -272,12 +256,10 @@ function onCellClick(event, row, col) {
 function onPieceCellClick(piece, row, col) {
   let possibleMoves = piece.getPossibleMoves();
   for (let possibleMove of possibleMoves) {
-    tbl.rows[possibleMove[0]].cells[possibleMove[1]].classList.add("path_square");
+    tbl.rows[possibleMove[0]].cells[possibleMove[1]].classList.add(
+      "path_square"
+    );
   }
 }
 
-function onEmptyCellClick(){
-
-}
-
-
+function onEmptyCellClick() {}
