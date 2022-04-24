@@ -247,7 +247,7 @@ function onCellClick(event, row, col) {
   }
   //check if the first click is a cell with a piece
   if (firstCellClick === undefined) {
-    if (cell.getElementsByTagName("img").length > 0) {
+    if (!boardData.isEmpty(row, col)) {
       firstCellClick = cell;
     } else {
       return;
@@ -255,7 +255,7 @@ function onCellClick(event, row, col) {
   }
   //check if the second click is a cell without a piece
   if (secondCellClick === undefined) {
-    if (!(cell.getElementsByTagName("img").length > 0)) {
+    if (boardData.isEmpty(row, col)) {
       secondCellClick = cell;
     } else {
       boardData.clearTable();
@@ -267,10 +267,7 @@ function onCellClick(event, row, col) {
     secondCellClick = undefined;
   }
 
-  let piece = boardData.getPiece(
-    parseInt(firstCellClick.id[3]),
-    parseInt(firstCellClick.id[5])
-  );
+  let piece = boardData.getPiece(parseInt(firstCellClick.id[3]),parseInt(firstCellClick.id[5]));
   if (piece != undefined) {
     onPieceCellClick(piece);
     selectedCell = event.currentTarget;
