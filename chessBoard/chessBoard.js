@@ -258,6 +258,9 @@ function onCellClick(event, row, col) {
     if (!(cell.getElementsByTagName("img").length > 0)) {
       secondCellClick = cell;
     } else {
+      boardData.clearTable();
+      firstCellClick = undefined;
+      secondCellClick = null;
       return;
     }
   } else {
