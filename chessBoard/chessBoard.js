@@ -49,6 +49,15 @@ class BoardData {
       }
     }
   }
+
+  isEmpty(row, col){
+    return this.getPiece(row, col) === undefined;
+  }
+
+  isPlayer(row, col, player) {
+    const piece = this.getPiece(row, col);
+    return piece !== undefined && piece.player === player;
+  }
 }
 
 class Piece {
@@ -57,94 +66,90 @@ class Piece {
     this.col = col;
     this.type = type;
     this.player = player;
+    if(player===BLACK_PLAYER){this.opponent = WHITE_PLAYER;}
+    if(player===WHITE_PLAYER){this.opponent = BLACK_PLAYER;}
   }
 
-  setRow(r) {
-    this.row = r;
-  }
-  setCol(c) {
-    this.col = c;
-  }
-  setType(t) {
-    this.type = t;
-  }
-  setplayer(p) {
-    this.player = p;
-  }
-
+  setRow(r){this.row = r;}
+  setCol(c){this.col = c;}
   getPossibleMoves() {
-    let relativeMoves = [];
+    let moves = [];
     if (this.type === PAWN) {
-      relativeMoves = this.getPawnMoves();
+      moves = this.getPawnMoves();
     }
     if (this.type === KNIGHT) {
-      relativeMoves = this.getKnightMoves();
+      moves = this.getKnightMoves();
     }
     if (this.type === ROOK) {
-      relativeMoves = this.getRookMoves();
+      moves = this.getRookMoves();
     }
     if (this.type === BISHOP) {
-      relativeMoves = this.getBishopMoves();
+      moves = this.getBishopMoves();
     }
     if (this.type === KING) {
-      relativeMoves = this.getKingMoves();
+      moves = this.getKingMoves();
     }
     if (this.type === QUEEN) {
-      relativeMoves = this.getQueenMoves();
-    }
-
-    let absoluteMoves = [];
-    for (let relativeMove of relativeMoves) {
-      absoluteMoves.push([
-        relativeMove[0] + this.row,
-        relativeMove[1] + this.col,
-      ]);
+      moves = this.getQueenMoves();
     }
 
     let filterMoves = [];
-    for (let absoluteMove of absoluteMoves) {
+    for (let move of moves) {
       if (
-        absoluteMove[0] >= 0 &&
-        absoluteMove[0] <= 7 &&
-        absoluteMove[1] >= 0 &&
-        absoluteMove[1] <= 7
+        move[0] >= 0 &&
+        move[0] <= 7 &&
+        move[1] >= 0 &&
+        move[1] <= 7
       ) {
-        filterMoves.push(absoluteMove);
+        filterMoves.push(move);
       }
     }
-    return this.removeUnlandableSquares(filterMoves);
+    return filterMoves;
   }
 
   getPawnMoves() {
-    if (this.player === BLACK_PLAYER) {
-      return [[1, 0]];
-    } else {
-      return [[-1, 0]];
-    }
-  }
-
-  getRookMoves() {
     let result = [];
-    for (let i = 1; i < BOARD_SIZE; i++) {
-      result.push([i, 0]);
-      result.push([-i, 0]);
-      result.push([0, i]);
-      result.push([0, -i]);
+    let direction = 1;
+    if (this.player === WHITE_PLAYER) {
+      direction = -1;
+    }
+    let position = [this.row + direction, this.col];
+    if (boardData.isEmpty(position[0], position[1])) {
+      result.push(position);
+    }
+
+    position = [this.row + direction, this.col + direction];
+    if (boardData.isPlayer(position[0], position[1], this.opponent)) {
+      result.push(position);
+    }
+
+    position = [this.row + direction, this.col - direction];
+    if (boardData.isPlayer(position[0], position[1], this.opponent)) {
+      result.push(position);
     }
     return result;
   }
 
+  getRookMoves() {
+    let result = [];
+    result = result.concat(this.removeUnlandableSquares(1,0));
+    result = result.concat(this.removeUnlandableSquares(-1,0));
+    result = result.concat(this.removeUnlandableSquares(0,1));
+    result = result.concat(this.removeUnlandableSquares(0,-1));
+    return result;
+  }
+
   getKingMoves() {
-    return [
-      [0, 1],
-      [1, 0],
-      [0, -1],
-      [-1, 0],
-      [1, 1],
-      [1, -1],
-      [-1, 1],
-      [-1, -1],
-    ];
+    let result = [];
+    const relativeMoves = [[-1, -1], [-1, 0], [-1, 1], [0, -1], [0, 1], [1, -1], [1, 0], [1, 1]];
+    for (let relativeMove of relativeMoves) {
+      let row = this.row + relativeMove[0];
+      let col = this.col + relativeMove[1];
+      if (!boardData.isPlayer(row, col, this.player)) {
+        result.push([row, col]);
+      }
+    }
+    return result;
   }
 
   getQueenMoves() {
@@ -154,34 +159,39 @@ class Piece {
   }
 
   getKnightMoves() {
-    return [
-      [-2, -1],
-      [-2, 1],
-      [-1, 2],
-      [1, 2],
-      [2, 1],
-      [2, -1],
-      [1, -2],
-      [-1, -2],
-    ];
-  }
-
-  getBishopMoves() {
     let result = [];
-    for (let i = 1; i < BOARD_SIZE; i++) {
-      result.push([-i, i]);
-      result.push([i, -i]);
-      result.push([-i, -i]);
-      result.push([i, i]);
+    const relativeMoves = [[2, 1], [2, -1], [-2, 1], [-2, -1], [-1, 2], [1, 2], [-1, -2], [1, -2]];
+    for (let relativeMove of relativeMoves) {
+      let row = this.row + relativeMove[0];
+      let col = this.col + relativeMove[1];
+      if (!boardData.isPlayer(row, col, this.player)) {
+        result.push([row, col]);
+      }
     }
     return result;
   }
 
-  removeUnlandableSquares(moves) {
+  getBishopMoves() {
     let result = [];
-    for (let move of moves) {
-      if (!(tbl.rows[move[0]].cells[move[1]].getElementsByTagName("img").length >0)) {
-        result.push(move);
+    result = result.concat(this.removeUnlandableSquares(-1, -1));
+    result = result.concat(this.removeUnlandableSquares(-1, 1));
+    result = result.concat(this.removeUnlandableSquares(1, -1));
+    result = result.concat(this.removeUnlandableSquares(1, 1));
+    return result;
+  }
+
+  removeUnlandableSquares(rowDir, colDir) {
+    let result = [];
+    for(let i=1; i<BOARD_SIZE; i++){
+      let row = this.row + rowDir*i;
+      let col = this.col + colDir*i;
+      if(boardData.isEmpty(row, col)){
+        result.push([row, col]);
+      } else if(boardData.getPiece(row, col).player === this.player){
+        return result;
+      } else {
+        result.push([row, col]);
+        return result;
       }
     }
     return result;
@@ -276,9 +286,7 @@ function onCellClick(event, row, col) {
 function onPieceCellClick(piece) {
   let possibleMoves = piece.getPossibleMoves();
   for (let possibleMove of possibleMoves) {
-    tbl.rows[possibleMove[0]].cells[possibleMove[1]].classList.add(
-      "path_square"
-    );
+    tbl.rows[possibleMove[0]].cells[possibleMove[1]].classList.add("path_square");
   }
 }
 
