@@ -12,9 +12,8 @@ const QUEEN = "queen";
 let tbl;
 let boardData;
 let selectedCell;
-let firstCellClick = undefined;
-let secondCellClick = null;
 let selectedPiece;
+let whichPlayerTurn = WHITE_PLAYER;
 window.addEventListener("load", createChessBoard);
 
 class BoardData {
@@ -293,13 +292,20 @@ function tryMove(piece, row, col) {
 function onCellClick(event, row, col) {
   if (selectedPiece === undefined) {
     selectedPiece = boardData.getPiece(row, col);
+    if(selectedPiece.player !== whichPlayerTurn){
+      selectedPiece = undefined;
+      return;
+    }
     onPieceCellClick(selectedPiece, event);
+    if(whichPlayerTurn===WHITE_PLAYER){
+      whichPlayerTurn = BLACK_PLAYER;
+    }else{
+      whichPlayerTurn = WHITE_PLAYER;
+    }
   } else {
     if (tryMove(selectedPiece, row, col)) {
       if (!boardData.isEmpty(row, col)) {
-        let parent = document.getElementById(
-          "td-" + row.toString() + "-" + col.toString()
-        );
+        let parent = document.getElementById("td-" + row.toString() + "-" + col.toString());
         parent.removeChild(parent.childNodes[0]);
         boardData.removePieceFromArr(row, col); // remove the eaten piece from the array
       }
