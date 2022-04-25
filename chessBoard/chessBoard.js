@@ -14,6 +14,7 @@ let boardData;
 let selectedCell;
 let firstCellClick = undefined;
 let secondCellClick = null;
+let selectedPiece;
 window.addEventListener("load", createChessBoard);
 
 class BoardData {
@@ -29,18 +30,31 @@ class BoardData {
     }
   }
 
-  movePiece(piece, curruntCell, transferCell) {
-    let parent = document.getElementById(curruntCell.id);
+  movePiece(piece, newRow, newCol) {
+    //delete the photo
+    let parent = document.getElementById(
+      "td-" + piece.getRow().toString() + "-" + piece.getCol().toString()
+    );
     parent.removeChild(parent.childNodes[0]);
-    piece.setRow(parseInt(transferCell.id[3]));
-    piece.setCol(parseInt(transferCell.id[5]));
+    piece.setRow(newRow);
+    piece.setCol(newCol);
     this.addPieceImage(piece);
+    this.clearTable();
+  }
+
+  removePieceFromArr(row, col) {
+    for (let i = 0; i < this.pieces.length; i++) {
+      const piece = this.pieces[i];
+      if (piece.row === row && piece.col === col) {
+        this.pieces.splice(i, 1);
+      }
+    }
   }
 
   addPieceImage(piece) {
     addImage(tbl.rows[piece.row].cells[piece.col], piece.player, piece.type);
   }
-  //cleans the table from selected squares
+
   clearTable() {
     for (let i = 0; i < BOARD_SIZE; i++) {
       for (let j = 0; j < BOARD_SIZE; j++) {
@@ -50,7 +64,7 @@ class BoardData {
     }
   }
 
-  isEmpty(row, col){
+  isEmpty(row, col) {
     return this.getPiece(row, col) === undefined;
   }
 
@@ -66,12 +80,27 @@ class Piece {
     this.col = col;
     this.type = type;
     this.player = player;
-    if(player===BLACK_PLAYER){this.opponent = WHITE_PLAYER;}
-    if(player===WHITE_PLAYER){this.opponent = BLACK_PLAYER;}
+    if (player === BLACK_PLAYER) {
+      this.opponent = WHITE_PLAYER;
+    }
+    if (player === WHITE_PLAYER) {
+      this.opponent = BLACK_PLAYER;
+    }
   }
 
-  setRow(r){this.row = r;}
-  setCol(c){this.col = c;}
+  getRow() {
+    return this.row;
+  }
+  getCol() {
+    return this.col;
+  }
+
+  setRow(r) {
+    this.row = r;
+  }
+  setCol(c) {
+    this.col = c;
+  }
   getPossibleMoves() {
     let moves = [];
     if (this.type === PAWN) {
@@ -95,12 +124,7 @@ class Piece {
 
     let filterMoves = [];
     for (let move of moves) {
-      if (
-        move[0] >= 0 &&
-        move[0] <= 7 &&
-        move[1] >= 0 &&
-        move[1] <= 7
-      ) {
+      if (move[0] >= 0 && move[0] <= 7 && move[1] >= 0 && move[1] <= 7) {
         filterMoves.push(move);
       }
     }
@@ -132,16 +156,25 @@ class Piece {
 
   getRookMoves() {
     let result = [];
-    result = result.concat(this.removeUnlandableSquares(1,0));
-    result = result.concat(this.removeUnlandableSquares(-1,0));
-    result = result.concat(this.removeUnlandableSquares(0,1));
-    result = result.concat(this.removeUnlandableSquares(0,-1));
+    result = result.concat(this.removeUnlandableSquares(1, 0));
+    result = result.concat(this.removeUnlandableSquares(-1, 0));
+    result = result.concat(this.removeUnlandableSquares(0, 1));
+    result = result.concat(this.removeUnlandableSquares(0, -1));
     return result;
   }
 
   getKingMoves() {
     let result = [];
-    const relativeMoves = [[-1, -1], [-1, 0], [-1, 1], [0, -1], [0, 1], [1, -1], [1, 0], [1, 1]];
+    const relativeMoves = [
+      [-1, -1],
+      [-1, 0],
+      [-1, 1],
+      [0, -1],
+      [0, 1],
+      [1, -1],
+      [1, 0],
+      [1, 1],
+    ];
     for (let relativeMove of relativeMoves) {
       let row = this.row + relativeMove[0];
       let col = this.col + relativeMove[1];
@@ -160,7 +193,16 @@ class Piece {
 
   getKnightMoves() {
     let result = [];
-    const relativeMoves = [[2, 1], [2, -1], [-2, 1], [-2, -1], [-1, 2], [1, 2], [-1, -2], [1, -2]];
+    const relativeMoves = [
+      [2, 1],
+      [2, -1],
+      [-2, 1],
+      [-2, -1],
+      [-1, 2],
+      [1, 2],
+      [-1, -2],
+      [1, -2],
+    ];
     for (let relativeMove of relativeMoves) {
       let row = this.row + relativeMove[0];
       let col = this.col + relativeMove[1];
@@ -182,12 +224,12 @@ class Piece {
 
   removeUnlandableSquares(rowDir, colDir) {
     let result = [];
-    for(let i=1; i<BOARD_SIZE; i++){
-      let row = this.row + rowDir*i;
-      let col = this.col + colDir*i;
-      if(boardData.isEmpty(row, col)){
+    for (let i = 1; i < BOARD_SIZE; i++) {
+      let row = this.row + rowDir * i;
+      let col = this.col + colDir * i;
+      if (boardData.isEmpty(row, col)) {
         result.push([row, col]);
-      } else if(boardData.getPiece(row, col).player === this.player){
+      } else if (boardData.getPiece(row, col).player === this.player) {
         return result;
       } else {
         result.push([row, col]);
@@ -238,56 +280,51 @@ function getInitialBoard() {
   return new BoardData(result);
 }
 
-function onCellClick(event, row, col) {
-  let cell = tbl.rows[row].cells[col];
-  //clears the variables if both with cells
-  if (firstCellClick != undefined && secondCellClick != undefined) {
-    firstCellClick = undefined;
-    secondCellClick = null;
-  }
-  //check if the first click is a cell with a piece
-  if (firstCellClick === undefined) {
-    if (!boardData.isEmpty(row, col)) {
-      firstCellClick = cell;
-    } else {
-      return;
+function tryMove(piece, row, col) {
+  const possibleMoves = piece.getPossibleMoves();
+  for (const possibleMove of possibleMoves) {
+    if (possibleMove[0] === row && possibleMove[1] === col) {
+      return true;
     }
   }
-  //check if the second click is a cell without a piece
-  if (secondCellClick === undefined) {
-    if (boardData.isEmpty(row, col)) {
-      secondCellClick = cell;
-    } else {
-      boardData.clearTable();
-      firstCellClick = undefined;
-      secondCellClick = null;
-      return;
-    }
-  } else {
-    secondCellClick = undefined;
-  }
+  return false;
+}
 
-  let piece = boardData.getPiece(parseInt(firstCellClick.id[3]),parseInt(firstCellClick.id[5]));
-  if (piece != undefined) {
-    onPieceCellClick(piece);
-    selectedCell = event.currentTarget;
-    selectedCell.classList.add("selected_square");
+function onCellClick(event, row, col) {
+  if (selectedPiece === undefined) {
+    selectedPiece = boardData.getPiece(row, col);
+    onPieceCellClick(selectedPiece, event);
   } else {
-    onEmptyCellClick();
-  }
-  if (firstCellClick != undefined && secondCellClick != undefined) {
-    if (secondCellClick.classList.contains("path_square")) {
-      boardData.movePiece(piece, firstCellClick, secondCellClick);
+    if (tryMove(selectedPiece, row, col)) {
+      if (!boardData.isEmpty(row, col)) {
+        let parent = document.getElementById(
+          "td-" + row.toString() + "-" + col.toString()
+        );
+        parent.removeChild(parent.childNodes[0]);
+        boardData.removePieceFromArr(row, col); // remove the eaten piece from the array
+      }
+      boardData.movePiece(selectedPiece, row, col);
+      selectedPiece = undefined;
+    } else {
+      if (!boardData.isEmpty(row, col)) {
+        selectedPiece = boardData.getPiece(row, col);
+        onPieceCellClick(selectedPiece, event);
+        return;
+      }
+      onPieceCellClick(selectedPiece, event);
+      selectedPiece = undefined;
     }
-    boardData.clearTable();
   }
 }
 
-function onPieceCellClick(piece) {
+function onPieceCellClick(piece, event) {
+  boardData.clearTable();
+  selectedCell = event.currentTarget;
+  selectedCell.classList.add("selected_square");
   let possibleMoves = piece.getPossibleMoves();
   for (let possibleMove of possibleMoves) {
-    tbl.rows[possibleMove[0]].cells[possibleMove[1]].classList.add("path_square");
+    tbl.rows[possibleMove[0]].cells[possibleMove[1]].classList.add(
+      "path_square"
+    );
   }
 }
-
-function onEmptyCellClick() {}
