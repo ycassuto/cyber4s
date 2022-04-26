@@ -19,6 +19,10 @@ table {
     margin-left: auto;
     margin-right: auto;
 }
+p {
+    font-size: 26px;
+    font-family: 'Courier New', Courier, monospace;
+}
 .selected_square {
     background-color: rgb(50, 206, 167);
 }

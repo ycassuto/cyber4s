@@ -1,7 +1,7 @@
 const BOARD_SIZE = 8;
 
-const WHITE_PLAYER = "white_pieces";
-const BLACK_PLAYER = "black_pieces";
+const WHITE_PLAYER = "white";
+const BLACK_PLAYER = "black";
 const PAWN = "pawn";
 const BISHOP = "BISHOP";
 const ROOK = "rook";
@@ -240,7 +240,10 @@ class Piece {
 }
 
 function createChessBoard() {
+  let para = document.createElement("p")
+  para.id = "player_turn";
   tbl = document.createElement("table");
+  document.body.appendChild(para);
   document.body.appendChild(tbl);
   for (let i = 0; i < BOARD_SIZE; i++) {
     const tr = tbl.insertRow();
@@ -259,6 +262,7 @@ function createChessBoard() {
   for (let piece of boardData.pieces) {
     addImage(tbl.rows[piece.row].cells[piece.col], piece.player, piece.type);
   }
+  document.getElementById('player_turn').innerHTML = whichPlayerTurn +" turn";
 }
 
 function addImage(cell, player, name) {
@@ -290,6 +294,7 @@ function tryMove(piece, row, col) {
 }
 
 function onCellClick(event, row, col) {
+  document.getElementById('player_turn').innerHTML = whichPlayerTurn +" turn";
   if (selectedPiece === undefined) {
     selectedPiece = boardData.getPiece(row, col);
     if(selectedPiece.player !== whichPlayerTurn){
