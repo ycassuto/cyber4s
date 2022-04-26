@@ -36,7 +36,6 @@ function createChessBoard() {
   for (let piece of boardData.pieces) {
     addImage(tbl.rows[piece.row].cells[piece.col], piece.player, piece.type);
   }
-  document.getElementById('player_turn').innerHTML = whichPlayerTurn +" turn";
 }
 
 function addImage(cell, player, name) {
@@ -61,25 +60,28 @@ function tryMove(piece, row, col) {
   const possibleMoves = piece.getPossibleMoves();
   for (const possibleMove of possibleMoves) {
     if (possibleMove[0] === row && possibleMove[1] === col) {
+      whichPlayerTurn = piece.opponent ;
       return true;
     }
   }
   return false;
 }
 
+function isPlayerTurn(piece){
+  if(piece.player === whichPlayerTurn){
+    return false;
+  }
+  return true;
+}
+
 function onCellClick(event, row, col) {
   if (selectedPiece === undefined) {
     selectedPiece = boardData.getPiece(row, col);
-    if(selectedPiece.player !== whichPlayerTurn){
+    if(isPlayerTurn(selectedPiece)){
       selectedPiece = undefined;
       return;
     }
     onPieceCellClick(selectedPiece, event);
-    if(whichPlayerTurn===WHITE_PLAYER){
-      whichPlayerTurn = BLACK_PLAYER;
-    }else{
-      whichPlayerTurn = WHITE_PLAYER;
-    }
   } else {
     if (tryMove(selectedPiece, row, col)) {
       if (!boardData.isEmpty(row, col)) {
@@ -92,6 +94,10 @@ function onCellClick(event, row, col) {
     } else {
       if (!boardData.isEmpty(row, col)) {
         selectedPiece = boardData.getPiece(row, col);
+        if(isPlayerTurn(selectedPiece)){
+          selectedPiece = undefined;
+          return;
+        }
         onPieceCellClick(selectedPiece, event);
         return;
       }
