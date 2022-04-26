@@ -1,19 +1,10 @@
-const BOARD_SIZE = 8;
-
-const WHITE_PLAYER = "white";
-const BLACK_PLAYER = "black";
-const PAWN = "pawn";
-const BISHOP = "BISHOP";
-const ROOK = "rook";
-const KING = "king";
-const KNIGHT = "knight";
-const QUEEN = "queen";
 
 let tbl;
 let boardData;
 let selectedCell;
 let selectedPiece;
 let whichPlayerTurn = WHITE_PLAYER;
+
 window.addEventListener("load", createChessBoard);
 
 function createChessBoard() {
@@ -46,11 +37,10 @@ function addImage(cell, player, name) {
 
 function getInitialBoard() {
   let result = [];
-  let temp = [ROOK, KNIGHT, BISHOP, QUEEN, KING, BISHOP, KNIGHT, ROOK];
   for (let i = 0; i < BOARD_SIZE; i++) {
-    result.push(new Piece(0, i, temp[i], BLACK_PLAYER));
+    result.push(new Piece(0, i, PIECES_ARR[i], BLACK_PLAYER));
     result.push(new Piece(1, i, PAWN, BLACK_PLAYER));
-    result.push(new Piece(7, i, temp[i], WHITE_PLAYER));
+    result.push(new Piece(7, i, PIECES_ARR[i], WHITE_PLAYER));
     result.push(new Piece(6, i, PAWN, WHITE_PLAYER));
   }
   return new BoardData(result);
@@ -74,6 +64,12 @@ function isPlayerTurn(piece){
   return true;
 }
 
+function removePhotoElem(row, col){
+  let parent = document.getElementById("td-" + row.toString() + "-" + col.toString());
+  parent.removeChild(parent.childNodes[0]);
+  boardData.removePieceFromArr(row, col); // remove the eaten piece from the array
+}
+
 function onCellClick(event, row, col) {
   if (selectedPiece === undefined) {
     selectedPiece = boardData.getPiece(row, col);
@@ -85,9 +81,7 @@ function onCellClick(event, row, col) {
   } else {
     if (tryMove(selectedPiece, row, col)) {
       if (!boardData.isEmpty(row, col)) {
-        let parent = document.getElementById("td-" + row.toString() + "-" + col.toString());
-        parent.removeChild(parent.childNodes[0]);
-        boardData.removePieceFromArr(row, col); // remove the eaten piece from the array
+        removePhotoElem(row, col);
       }
       boardData.movePiece(selectedPiece, row, col);
       selectedPiece = undefined;
@@ -113,8 +107,6 @@ function onPieceCellClick(piece, event) {
   selectedCell.classList.add("selected_square");
   let possibleMoves = piece.getPossibleMoves();
   for (let possibleMove of possibleMoves) {
-    tbl.rows[possibleMove[0]].cells[possibleMove[1]].classList.add(
-      "path_square"
-    );
+    tbl.rows[possibleMove[0]].cells[possibleMove[1]].classList.add("path_square");
   }
 }

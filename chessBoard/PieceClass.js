@@ -25,6 +25,7 @@ class Piece {
   setCol(c) {
     this.col = c;
   }
+
   getPossibleMoves() {
     let moves = [];
     if (this.type === PAWN) {
@@ -89,16 +90,7 @@ class Piece {
 
   getKingMoves() {
     let result = [];
-    const relativeMoves = [
-      [-1, -1],
-      [-1, 0],
-      [-1, 1],
-      [0, -1],
-      [0, 1],
-      [1, -1],
-      [1, 0],
-      [1, 1],
-    ];
+    const relativeMoves = [[-1, -1],[-1, 0],[-1, 1],[0, -1],[0, 1],[1, -1],[1, 0],[1, 1]];
     for (let relativeMove of relativeMoves) {
       let row = this.row + relativeMove[0];
       let col = this.col + relativeMove[1];
@@ -110,9 +102,7 @@ class Piece {
   }
 
   getQueenMoves() {
-    let result;
-    result = this.getBishopMoves().concat(this.getRookMoves());
-    return result;
+    return this.getBishopMoves().concat(this.getRookMoves());
   }
 
   getKnightMoves() {
