@@ -4,6 +4,7 @@ let boardData;
 let selectedCell;
 let selectedPiece;
 let whichPlayerTurn = WHITE_PLAYER;
+let winner = undefined;
 
 window.addEventListener("load", createChessBoard);
 
@@ -81,6 +82,9 @@ function onCellClick(event, row, col) {
   } else {
     if (tryMove(selectedPiece, row, col)) {
       if (!boardData.isEmpty(row, col)) {
+        if(boardData.getPiece(row, col).type === KING && winner === undefined){
+          winner = selectedPiece.player;
+        }
         removePhotoElem(row, col);
       }
       boardData.movePiece(selectedPiece, row, col);
@@ -99,6 +103,10 @@ function onCellClick(event, row, col) {
       selectedPiece = undefined;
     }
   }
+
+  if(winner !== undefined){
+    finishGame(winner);
+  }
 }
 
 function onPieceCellClick(piece, event) {
@@ -109,4 +117,8 @@ function onPieceCellClick(piece, event) {
   for (let possibleMove of possibleMoves) {
     tbl.rows[possibleMove[0]].cells[possibleMove[1]].classList.add("path_square");
   }
+}
+
+function finishGame(winner){
+  console.log(winner + " player won!!!")
 }
