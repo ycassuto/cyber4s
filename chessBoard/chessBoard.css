@@ -1,31 +1,44 @@
 .black_square {
-    background-color: rgb(53, 53, 53);
-    height: 80px;
-    width: 80px;
+  background-color: rgb(53, 53, 53);
+  height: 80px;
+  width: 80px;
 }
 .white_square {
-    background-color: rgb(221, 221, 221);
-    height: 80px;
-    width: 80px;
+  background-color: rgb(221, 221, 221);
+  height: 80px;
+  width: 80px;
 }
 img {
-    display: block;
-    margin-left: auto;
-    margin-right: auto;
-    height: 40px;
-    width: 40px;
+  display: block;
+  margin-left: auto;
+  margin-right: auto;
+  height: 40px;
+  width: 40px;
 }
 table {
-    margin-left: auto;
-    margin-right: auto;
+  margin-left: auto;
+  margin-right: auto;
 }
 p {
-    font-size: 26px;
-    font-family: 'Courier New', Courier, monospace;
+  font-size: 26px;
+  font-family: "Courier New", Courier, monospace;
 }
 .selected_square {
-    background-color: rgb(50, 206, 167);
+  background-color: rgb(50, 206, 167);
 }
 .path_square {
-    background-color: rgb(52, 124, 52);
+  background-color: rgb(52, 124, 52);
+}
+.winner {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  background: white;
+  padding: 50;
+  border-radius: 10px;
+  width: max-content;
+}
+.check {
+  background-color: rgb(243, 55, 55);
 }

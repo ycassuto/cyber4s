@@ -21,6 +21,7 @@ class BoardData {
     piece.setCol(newCol);
     this.addPieceImage(piece);
     this.clearTable();
+    this.checkIfCheck()
   }
 
   removePieceFromArr(row, col) {
@@ -28,6 +29,20 @@ class BoardData {
       const piece = this.pieces[i];
       if (piece.row === row && piece.col === col) {
         this.pieces.splice(i, 1);
+      }
+    }
+  }
+
+  checkIfCheck(){
+    for(let piece of this.pieces){
+      let moves = piece.getPossibleMoves();
+      for(let move of moves){
+        if(this.getPiece(move[0],move[1]) !== undefined){
+          let eatablePiece = this.getPiece(move[0],move[1]);
+          if(eatablePiece.opponent === piece.player && eatablePiece.type === KING){
+            tbl.rows[eatablePiece.row].cells[eatablePiece.col].classList.add("check");
+          }
+        }
       }
     }
   }
@@ -41,6 +56,7 @@ class BoardData {
       for (let j = 0; j < BOARD_SIZE; j++) {
         tbl.rows[i].cells[j].classList.remove("path_square");
         tbl.rows[i].cells[j].classList.remove("selected_square");
+        tbl.rows[i].cells[j].classList.remove("check");
       }
     }
   }

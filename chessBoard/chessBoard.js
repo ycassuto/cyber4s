@@ -120,5 +120,8 @@ function onPieceCellClick(piece, event) {
 }
 
 function finishGame(winner){
-  console.log(winner + " player won!!!")
+  const winnerWindow = document.createElement('div');
+  winnerWindow.textContent = winner + ' player wins!';
+  winnerWindow.classList.add('winner');
+  tbl.appendChild(winnerWindow)
 }
