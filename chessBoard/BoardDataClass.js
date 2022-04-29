@@ -21,7 +21,7 @@ class BoardData {
     piece.setCol(newCol);
     this.addPieceImage(piece);
     this.clearTable();
-    this.checkIfCheck()
+    this.ifCheck()
   }
 
   removePieceFromArr(row, col) {
@@ -33,7 +33,8 @@ class BoardData {
     }
   }
 
-  checkIfCheck(){
+  ifCheck(){
+    this.clearCheckSqure();
     for(let piece of this.pieces){
       let moves = piece.getPossibleMoves();
       for(let move of moves){
@@ -47,6 +48,14 @@ class BoardData {
     }
   }
 
+  clearCheckSqure(){
+    for (let i = 0; i < BOARD_SIZE; i++) {
+      for (let j = 0; j < BOARD_SIZE; j++) {
+        tbl.rows[i].cells[j].classList.remove("check");
+      }
+    }
+  }
+
   addPieceImage(piece) {
     addImage(tbl.rows[piece.row].cells[piece.col], piece.player, piece.type);
   }
@@ -56,7 +65,6 @@ class BoardData {
       for (let j = 0; j < BOARD_SIZE; j++) {
         tbl.rows[i].cells[j].classList.remove("path_square");
         tbl.rows[i].cells[j].classList.remove("selected_square");
-        tbl.rows[i].cells[j].classList.remove("check");
       }
     }
   }
